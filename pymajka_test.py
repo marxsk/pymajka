@@ -100,5 +100,10 @@ class TestPyMajka(unittest.TestCase):
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
 		result = majka.get_tuple(u"Ruská")
 
+	def test_colon(self):
+		""" Test colon which is normally a separator """
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		result = majka.get_tuple(":")
+
 if __name__ == '__main__':
 	unittest.main()
