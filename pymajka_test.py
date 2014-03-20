@@ -104,6 +104,7 @@ class TestPyMajka(unittest.TestCase):
 		""" Test colon which is normally a separator """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
 		result = majka.get_tuple(":")
+		self.assertEquals(":", result[0][0])
 
 if __name__ == '__main__':
 	unittest.main()

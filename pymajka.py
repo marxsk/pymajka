@@ -37,7 +37,7 @@ class Majka:
 			elements[0] = unicode(elements[0].decode("utf-8"))
 
 		if token == ":":
-			elements[0] = ":"
+			elements = [":", ":", ":"]
 		elif token != elements[0]:
 			print >> sys.stderr, "majka returned invalid output for token >%s< vs >%s<" % (token, elements[0])
 			sys.exit(1)
