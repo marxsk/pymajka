@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # pylint: disable=R0904
 
 """ Unit test suite for pymajka """
@@ -88,6 +89,16 @@ class TestPyMajka(unittest.TestCase):
 		result = majka.get_tuple("dub")
 		self.assertEquals(2, len(result))
 		self.assertEquals("k1gInSc1", result[0][1])
+
+	def test_diacritics(self):
+		""" Test non-ascii string """
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		result = majka.get_tuple("Ruská")
+
+	def test_diacritics_unicode(self):
+		""" Test non-ascii string """
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		result = majka.get_tuple(u"Ruská")
 
 if __name__ == '__main__':
 	unittest.main()

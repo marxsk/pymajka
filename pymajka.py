@@ -32,8 +32,12 @@ class Majka:
 	def get_tuple(self, token):
 		""" Get tuples from majka output formated into pairs/triplets/... according to dict_type """
 		elements = self.get_raw(token).split(":")
+
+		if isinstance(token, unicode):
+			elements[0] = unicode(elements[0].decode("utf-8"))
+
 		if token != elements[0]:
-			print >> sys.stderr, "majka returned invalid output for token %s" % (token)
+			print >> sys.stderr, "majka returned invalid output for token %s vs %s" % (token, elements[0])
 			sys.exit(1)
 
 		if len(self.dict_type) == 1:
