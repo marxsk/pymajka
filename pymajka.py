@@ -35,6 +35,8 @@ class Majka:
 
 		if isinstance(token, unicode):
 			elements[0] = unicode(elements[0].decode("utf-8"))
+		else:
+			raise TypeError("Only unicode strings are accepted by module Majka")
 
 		if token == ":":
 			elements = [":", ":", ":"]

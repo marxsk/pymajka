@@ -40,12 +40,12 @@ class TestPyMajka(unittest.TestCase):
 	def test_raw_pes(self):
 		""" Check if we obtain same raw output as expected for token "pes" """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		self.assertEquals("pes:pes:k1gMnSc1:peso:k1gNnPc2", majka.get_raw("pes"))
+		self.assertEquals(u"pes:pes:k1gMnSc1:peso:k1gNnPc2", majka.get_raw(u"pes"))
 
 	def test_tuple_lt_pes(self):
 		""" Check if we obtain formatted tuples as expected for token "pes" """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		result = majka.get_tuple("pes")
+		result = majka.get_tuple(u"pes")
 		self.assertEquals(2, len(result))
 		self.assertEquals("peso", result[1][0])
 		self.assertEquals("k1gNnPc2", result[1][1])
@@ -58,7 +58,7 @@ class TestPyMajka(unittest.TestCase):
 	def test_tuple_lt_dub(self):
 		""" Check if we obtain formatted tuples as expected for token "pes" """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		result = majka.get_tuple("dub")
+		result = majka.get_tuple(u"dub")
 		self.assertEquals(2, len(result))
 		self.assertEquals("dub", result[0][0])
 		self.assertEquals("k1gInSc1", result[0][1])
@@ -66,34 +66,35 @@ class TestPyMajka(unittest.TestCase):
 	def test_raw_xyz(self):
 		""" Test raw results of analyzing token that does not exists in Czech database """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		self.assertEquals("xyz", majka.get_raw("xyz"))
+		self.assertEquals("xyz", majka.get_raw(u"xyz"))
 
 	def test_tuple_lt_xyz(self):
 		""" Test formatted tuples of analyzing token that does not exists in Czech database """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		result = majka.get_tuple("xyz")
+		result = majka.get_tuple(u"xyz")
 		self.assertEquals(0, len(result))
 
 	def test_tuple_w_pes(self):
 		""" Check if we obtain formatted tuples as expected for token "pes" with different dictionary type"""
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT_LW), "w")
-		result = majka.get_tuple("pes")
+		result = majka.get_tuple(u"pes")
 		self.assertEquals(15, len(result))
 		self.assertEquals("psa", result[1][0])
 
 	def test_multiple(self):
 		""" Test obtaining several analysis in one connection """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		result = majka.get_tuple("xyz")
+		result = majka.get_tuple(u"xyz")
 		self.assertEquals(0, len(result))
-		result = majka.get_tuple("dub")
+		result = majka.get_tuple(u"dub")
 		self.assertEquals(2, len(result))
 		self.assertEquals("k1gInSc1", result[0][1])
 
 	def test_diacritics(self):
-		""" Test non-ascii string """
+		""" Test non-ascii string - this should fail"""
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		result = majka.get_tuple("Ruská")
+		with self.assertRaises(TypeError):
+			result = majka.get_tuple("Ruská")
 
 	def test_diacritics_unicode(self):
 		""" Test non-ascii string """
@@ -103,7 +104,7 @@ class TestPyMajka(unittest.TestCase):
 	def test_colon(self):
 		""" Test colon which is normally a separator """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		result = majka.get_tuple(":")
+		result = majka.get_tuple(u":")
 		self.assertEquals(":", result[0][0])
 
 if __name__ == '__main__':
