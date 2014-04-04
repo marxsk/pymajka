@@ -1,6 +1,7 @@
 """ Python interface to morphological analyser majka """
 import pexpect
 import sys
+import logging
 
 class Majka:
 	""" Python interface to morphological analyser majka
@@ -40,7 +41,7 @@ class Majka:
 		if token == ":":
 			elements = [":", ":", ":"]
 		elif token != elements[0]:
-			print >> sys.stderr, "majka returned invalid output for token >%s< vs >%s<" % (token, elements[0])
+			logging.error("majka returned invalid output for token >%s< vs >%s<" % (token, elements[0]))
 			sys.exit(1)
 
 		if len(self.dict_type) == 1:
@@ -48,7 +49,7 @@ class Majka:
 		elif len(self.dict_type) == 2:
 			pairs = zip(elements[1::2], elements[2::2])
 		else:
-			print >> sys.stderr, "we do not support more than pairs on output"
+			logging.error("we do not support more than pairs on output")
 			sys.exit(2)
 
 		return pairs
