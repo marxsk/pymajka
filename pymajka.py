@@ -31,12 +31,11 @@ class Majka:
 
 	def get_tuple(self, token):
 		""" Get tuples from majka output formated into pairs/triplets/... according to dict_type """
-		elements = self.get_raw(token).split(":")
-
-		if isinstance(token, unicode):
-			elements[0] = unicode(elements[0].decode("utf-8"))
-		else:
+		if not isinstance(token, unicode):
 			raise TypeError("Only unicode strings are accepted by module Majka")
+
+		elements = self.get_raw(token).split(":")
+		elements = [ unicode(x.decode("utf-8")) for x in elements ]
 
 		if token == ":":
 			elements = [":", ":", ":"]

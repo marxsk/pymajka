@@ -107,5 +107,11 @@ class TestPyMajka(unittest.TestCase):
 		result = majka.get_tuple(u":")
 		self.assertEquals(":", result[0][0])
 
+	def test_unicode_lemma(self):
+		""" Test lemma returned for unicode string """
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		result = majka.get_tuple(u"život")
+		self.assertEquals(u"život", result[0][0])
+
 if __name__ == '__main__':
 	unittest.main()
