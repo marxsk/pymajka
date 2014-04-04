@@ -9,7 +9,7 @@ import pymajka
 import pexpect
 
 class TestPyMajka(unittest.TestCase):
-	""" Unit test suite for pymajka
+	""" Unit test suite for pymajka.Majka
 
 		It requires an access to majka and two selected dictionaries. Testing attempts to cover
 		all major situations when this class can be used. Including using several tokens in one
@@ -17,6 +17,7 @@ class TestPyMajka(unittest.TestCase):
 	"""
 	MAJKA_PATH = "majka/majka"
 	MAJKA_DICT = "majka/majka.w-lt"
+	MAJKA_DICT_W = "majka/majka.w"
 	MAJKA_DICT_LW = "majka/majka.l-w"
 
 	def test_constructor_basic(self):
@@ -53,7 +54,7 @@ class TestPyMajka(unittest.TestCase):
 	def test_raw_dub(self):
 		""" Check if we obtain same raw output as expected for token "dub" """
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-		self.assertEquals("dub:dub:k1gInSc1:dub:k1gInSc4", majka.get_raw("dub"))
+		self.assertEquals("dub:dub:k1gInSc1:dub:k1gInSc4", majka.get_raw(u"dub"))
 
 	def test_tuple_lt_dub(self):
 		""" Check if we obtain formatted tuples as expected for token "pes" """
@@ -112,6 +113,77 @@ class TestPyMajka(unittest.TestCase):
 		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
 		result = majka.get_tuple(u"život")
 		self.assertEquals(u"život", result[0][0])
+
+	def test_preprocess_token(self):
+		""" Test preprocessing of tokens e.g. unify i/y """
+		class Ypsilon(pymajka.Majka):
+			def preprocess(self, token):
+				return token.replace(u"y", u"i").replace(u"Y", u"I").replace(u"ý", u"í").replace(u"Ý", u"Í")
+
+		majka = Ypsilon("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		self.assertEquals(u"pivo", majka.get_tuple(u"pyvo")[0][0])
+
+	def test_capitalization(self):
+		""" Test token which has first letter capital """
+		class Capit(pymajka.Majka):
+			def postprocess(self, token, results):
+				# We expect that it is used only with "w" dictionaries
+				if token == token.capitalize():
+					final_result = []
+					for result in results:
+						final_result.append((result[0].capitalize(),))
+					return final_result
+
+				return results
+
+		majka = Capit("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT_W), "w")
+		result = majka.get_tuple(u"Žirafy")
+		self.assertEquals(u"Žirafy", result[0][0])
+
+	def test_uppercase(self):
+		""" Test token which is written in uppercase only """
+		class Capit(pymajka.Majka):
+			def postprocess(self, token, results):
+				# We expect that it is used only with "w" dictionaries
+				if token == token.upper():
+					final_result = []
+					for result in results:
+						final_result.append((result[0].upper(),))
+					return final_result
+
+				return results
+
+		majka = Capit("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT_W), "w")
+		result = majka.get_tuple(u"ŽIRAFY")
+		self.assertEquals(u"ŽIRAFY", result[0][0])
+
+class TestPyMajkaRepair(unittest.TestCase):
+	MAJKA_PATH = "majka/majka"
+	MAJKA_Y_PATH = "majka/majka-marx-y"
+	MAJKA_DICT_W = "majka/majka.w"
+
+	def test_constructor(self):
+		majka = pymajka.MajkaRepair("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT_W))
+
+	def test_upper(self):
+		majka = pymajka.MajkaRepair("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT_W))
+		result = majka.get_tuple(u"ŽIRAFY")
+		self.assertEquals(u"ŽIRAFY", result[0][0])
+
+	def test_capitalization(self):
+		majka = pymajka.MajkaRepair("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT_W))
+		result = majka.get_tuple(u"Žirafy")
+		self.assertEquals(u"Žirafy", result[0][0])
+
+	def test_preprocess_token(self):
+		""" Test preprocessing of tokens e.g. unify i/y """
+		class Ypsilon(pymajka.MajkaRepair):
+			def preprocess(self, token):
+				return token.replace(u"y", u"i").replace(u"Y", u"I").replace(u"ý", u"í").replace(u"Ý", u"Í")
+
+		majka = Ypsilon("%s -f %s -p" % (self.MAJKA_Y_PATH, self.MAJKA_DICT_W))
+		self.assertEquals(u"Žirafy", majka.get_tuple(u"Žirafy")[0][0])
+		self.assertEquals(u"Žirafy", majka.get_tuple(u"Žirafi")[0][0])
 
 if __name__ == '__main__':
 	unittest.main()
