@@ -23,7 +23,7 @@ class Majka:
 
 	def get_raw(self, token):
 		""" Get raw output from majka """
-		self.conn.send(token + "\n")
+		self.conn.send(token.encode("utf-8") + "\n")
 		self.conn.expect("\n", self.timeout)
 		self.conn.expect("\n", self.timeout)
 		output = self.conn.before.rstrip()
