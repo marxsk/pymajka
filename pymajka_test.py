@@ -157,6 +157,21 @@ class TestPyMajka(unittest.TestCase):
 		result = majka.get_tuple(u"ŽIRAFY")
 		self.assertEquals(u"ŽIRAFY", result[0][0])
 
+	def test_colon_in_text(self):
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		result = majka.get_tuple(u"http://www.streettrutnov.cz")
+		self.assertEquals(u"http://www.streettrutnov.cz", result[0][0])
+
+	def test_colon_w(self):
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT_W), "w")
+		result = majka.get_tuple(u":")
+		self.assertEquals(1, len(result))
+
+	def test_colon_wl(self):
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		result = majka.get_tuple(u":")
+		self.assertEquals(1, len(result))
+
 class TestPyMajkaRepair(unittest.TestCase):
 	MAJKA_PATH = "majka/majka"
 	MAJKA_Y_PATH = "majka/majka-marx-y"

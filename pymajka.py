@@ -53,8 +53,12 @@ class Majka:
 		elements = self.get_raw(processed_token).split(":")
 		elements = [ unicode(x.decode("utf-8")) for x in elements ]
 
-		if processed_token == ":":
-			elements = [":", ":", ":"]
+		if ":" in processed_token:
+			logging.debug("Token contains colon, so it is ignored")
+			if len(self.dict_type) == 1:
+				elements = [processed_token, processed_token]
+			elif len(self.dict_type) == 2:
+				elements = [processed_token, processed_token, processed_token]
 		elif processed_token != elements[0]:
 			logging.error("majka returned invalid output for token >%s< vs >%s<" % (processed_token, elements[0]))
 			sys.exit(1)
