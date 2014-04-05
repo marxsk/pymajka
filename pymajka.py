@@ -40,7 +40,7 @@ class Majka:
 		self.conn.send(token.encode("utf-8") + "\n")
 		self.conn.expect("\n", self.timeout)
 		self.conn.expect("\n", self.timeout)
-		output = self.conn.before.rstrip()
+		output = self.conn.before.rstrip('\n\r')
 
 		return output
 

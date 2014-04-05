@@ -172,6 +172,11 @@ class TestPyMajka(unittest.TestCase):
 		result = majka.get_tuple(u":")
 		self.assertEquals(1, len(result))
 
+	def test_colon_strange_char(self):
+		majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
+		result = majka.get_tuple(u" ")
+
+
 class TestPyMajkaRepair(unittest.TestCase):
 	MAJKA_PATH = "majka/majka"
 	MAJKA_Y_PATH = "majka/majka-marx-y"
