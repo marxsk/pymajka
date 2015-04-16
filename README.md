@@ -3,10 +3,15 @@ pymajka
 
 pymajka - python interface to morphological analyser majka
 
-Usage:
+Plain usage:
+
 
 import pymajka
-
-majka = pymajka.Majka("%s -f %s -p" % (self.MAJKA_PATH, self.MAJKA_DICT))
-
+majka = pymajka.Majka("majka/majka.l-wt", library="majka/libmajka.so")
 result = majka.get_tuple(u"pes")
+
+Add diacritics variant:
+
+import majka
+majka = pymajka.Majka("majka/majka.l-wt", library="majka/libmajka.so", flag=pymajka.ADD_DIACRITICS)
+result = majka.get_tuple(u"zirafa")
