@@ -63,11 +63,8 @@ class Majka(object):
 
 		out = []
 		majka_output = [unicode(x.decode("utf-8")) for x in self.get_raw(processed_token)]
-		if len(majka_output) > 0:
-			for entry in majka_output:
-				out.append(entry.split(":"))
-		else:
-			out = []
+		for entry in majka_output:
+			out.append(entry.split(":"))
 		return self.postprocess(token, out)
 
 class MajkaRepair(Majka):
