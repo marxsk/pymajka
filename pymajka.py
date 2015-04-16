@@ -4,7 +4,7 @@ import ctypes
 STDLIB = "majka/libmajka.so"
 
 # Available flags
-#	Add diacritics can be used also for other dictionary specific transformation e.g i/y
+#	Add diacritics can be used also for other library specific transformation e.g i/y
 #
 ADD_DIACRITICS = 1
 IGNORE_CASE = 2
