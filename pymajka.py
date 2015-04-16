@@ -1,9 +1,15 @@
 """ Python interface to morphological analyser majka """
-import pexpect
-import sys
-import logging
+import ctypes
 
-class Majka:
+STDLIB = "majka/libmajka.so"
+
+# Available flags
+#	Add diacritics can be used also for other dictionary specific transformation e.g i/y
+#
+ADD_DIACRITICS = 1
+IGNORE_CASE = 2
+
+class Majka(object):
 	""" Python interface to morphological analyser majka
 
 		This class provides easy access to the morphological analyser. It is based on the command-line
@@ -14,22 +20,24 @@ class Majka:
 		During development, I was following a test-driven development what should help you to understand
 		basic usage. Just take a look at unittest in pymajka_test.py
 	"""
-	def __init__(self, command, dict_type = "lt"):
-		self.process = None
-		self.dict_type = dict_type
-		self.timeout = 1
+	def __init__(self, dictionary, dict_type="lt", flag=0, library=STDLIB):
+		self.libmajka = ctypes.CDLL(library)
+		self.libmajka.fsa_find_first.restype = ctypes.c_char_p
+		self.libmajka.fsa_find_next.restype = ctypes.c_char_p
+		self.majka = self.libmajka.fsa_new(dictionary)
 
-		self.conn = pexpect.spawn(command)
+		self.flag = flag
+		self.dict_type = dict_type
 
 	def preprocess(self, token):
 		""" Preprocess token before it is processed by get_tuple()
-
 			Input/output is always unicode"""
+
 		return token
 
 	def postprocess(self, token, tuples):
 		""" Postprocess results to obtain a preffered form e.g. capitalization """
-
+		del token
 		return tuples
 
 	def get_raw(self, token):
@@ -37,12 +45,14 @@ class Majka:
 		if not isinstance(token, unicode):
 			raise TypeError("Only unicode strings are accepted by Majka")
 
-		self.conn.send(token.encode("utf-8") + "\n")
-		self.conn.expect("\n", self.timeout)
-		self.conn.expect("\n", self.timeout)
-		output = self.conn.before.rstrip('\n\r')
+		results = []
 
-		return output
+		response = self.libmajka.fsa_find_first(self.majka, token.encode("utf-8"), self.flag)
+		while not response == "":
+			results.append(response)
+			response = self.libmajka.fsa_find_next(self.majka)
+
+		return results
 
 	def get_tuple(self, token):
 		""" Get tuples from majka output formated into pairs/triplets/... according to dict_type """
@@ -50,28 +60,15 @@ class Majka:
 			raise TypeError("Only unicode strings are accepted by Majka")
 
 		processed_token = self.preprocess(token)
-		elements = self.get_raw(processed_token).split(":")
-		elements = [ unicode(x.decode("utf-8")) for x in elements ]
 
-		if ":" in processed_token:
-			logging.debug("Token contains colon, so it is ignored")
-			if len(self.dict_type) == 1:
-				elements = [processed_token, processed_token]
-			elif len(self.dict_type) == 2:
-				elements = [processed_token, processed_token, processed_token]
-		elif processed_token != elements[0]:
-			logging.error("majka returned invalid output for token >%s< vs >%s<" % (processed_token, elements[0]))
-			sys.exit(1)
-
-		if len(self.dict_type) == 1:
-			pairs = zip(elements[1::1])
-		elif len(self.dict_type) == 2:
-			pairs = zip(elements[1::2], elements[2::2])
+		out = []
+		majka_output = [unicode(x.decode("utf-8")) for x in self.get_raw(processed_token)]
+		if len(majka_output) > 0:
+			for entry in majka_output:
+				out.append(entry.split(":"))
 		else:
-			logging.error("we do not support more than pairs on output")
-			sys.exit(2)
-
-		return self.postprocess(token, pairs)
+			out = []
+		return self.postprocess(token, out)
 
 class MajkaRepair(Majka):
 	""" Extension of Majka which should be used for situation when you have to repair word
@@ -81,13 +78,13 @@ class MajkaRepair(Majka):
 		preprocessing e.g. remove diacritics / merge i/y together
 	"""
 
-	def __init__ (self, command):
-		Majka.__init__(self, command, "w")
+	def __init__(self, dictionary, library=STDLIB):
+		Majka.__init__(self, dictionary, dict_type="w", library=library, flag=1)
 
 	def postprocess(self, token, results):
 		if token == token.upper():
-			return map(lambda r: (r[0].upper(),), results)
+			return [(r[0].upper(),) for r in results]
 		elif token == token.capitalize():
-			return map(lambda r: (r[0].capitalize(),), results)
+			return [(r[0].capitalize(),) for r in results]
 		else:
 			return results
